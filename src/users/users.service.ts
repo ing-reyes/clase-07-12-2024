@@ -1,7 +1,8 @@
 import { ManagerError } from "../common/errors/manager.error";
+import { CreateUserDto } from "./dtos/create-user.dto";
+import { UpdateUserDto } from "./dtos/update-user.dto";
 import { UserEntity } from "./entities/user.entity";
 import { ResponseAllUsers } from "./interfaces/response-all-users.interface";
-import { CreateUser, UpdateUser } from "./types/users.type";
 
 
 export class UsersServices {
@@ -22,7 +23,7 @@ export class UsersServices {
         { id: "13", name: "luis", email: "PropiertisluisC@microsoft.com", password: "123456", photo: "photo13.jpg", createdAt: new Date("2024-11-11"), updatedAt: new Date("2024-11-14") },
     ];
 
-    async create( user: CreateUser ): Promise<UserEntity> {
+    async create( user: CreateUserDto ): Promise<UserEntity> {
         try {
             const newUser: UserEntity = { ...user, id: Date.now().toString(), createdAt: new Date(), updatedAt: new Date() };
 
@@ -43,7 +44,10 @@ export class UsersServices {
 
     async findAll(): Promise<ResponseAllUsers> {
         try{
-          return { total: this.users.length, data: this.users };
+          return { 
+            total: this.users.length, 
+            data: this.users 
+          };
         }catch(error){
           throw error;
         }
@@ -61,12 +65,27 @@ export class UsersServices {
         }
     }
 
-    async update(id: string, updateUser: UpdateUser): Promise<UserEntity> {
+    async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
         try{
           const user = await this.findOne(id);
           const userIndex = this.users.findIndex((user)=>user.id===id);
 
-          this.users[userIndex] = { ...user, ...updateUser, updatedAt: new Date() };
+          /* 
+                * Esta actualización la estoy haciendo con ternarios
+                * Si viene la propiedad updateUserDto.name la establezco, sino dejo la de user.name
+                * Los ternarios son condicionales en linea
+                * PD: En la aplicación final no se hara asi, ya que la base de datos omite las propiedades undefined
+                * 
+                * Más info sobre ternarios: https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Operators/Conditional_operator
+            */
+          this.users[userIndex] = { 
+            ...user, 
+            name: updateUserDto.name? updateUserDto.name: user.name,
+            email: updateUserDto.email? updateUserDto.email: user.email,
+            password: updateUserDto.password? updateUserDto.password: user.password,
+            photo: updateUserDto.photo? updateUserDto.photo: user.photo,
+            updatedAt: new Date() 
+          };
 
           return this.users[userIndex];
         }catch(error){

@@ -1,9 +1,9 @@
-import { ProductsController } from "./products/products.controller";
-import { ProductsService } from "./products/products.service";
+import { CategoriesController } from "./categories/categories.controller";
+import { CategoriesService } from "./categories/categories.service";
 
 (async () => {
-    const productsService = new ProductsService()
-    const productsController = new ProductsController(productsService);
+    const categoriesService = new CategoriesService()
+    const categoriesController = new CategoriesController(categoriesService);
 
-    console.log( productsController.create() )
+    console.log( categoriesController.remove() );
 })()

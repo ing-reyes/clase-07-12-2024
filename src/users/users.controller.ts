@@ -1,6 +1,6 @@
 import { ManagerError } from "../common/errors/manager.error"
 import { CreateUserDto } from "./dtos/create-user.dto"
-import { CreateUser, UpdateUser } from "./types/users.type"
+import { UpdateUserDto } from "./dtos/update-user.dto"
 import { UsersServices } from "./users.service"
 
 export class UsersController {
@@ -12,7 +12,7 @@ export class UsersController {
         const user = {
             name: "fermin",
             email: "fermin@google.com",
-            password: "1233245345",
+            //password: "1233245345",
             photo: "photo1.jpg",
         }
 
@@ -21,31 +21,31 @@ export class UsersController {
 
         this.usersService.create( createUserDto! )
           .then((user)=>console.log(user))
-          .catch((err)=>console.error(err))
+          .catch((error)=>console.error({statusCode: error.statusCode, message: error.message}))
     }
 
     findAll = () => {
       this.usersService.findAll()
         .then((users)=>console.log(users))
-        .catch((error)=>console.log(error))
+        .catch((error)=>console.log({statusCode: error.statusCode, message: error.message}))
     }
 
     findOne = (id:string) => {
 
       this.usersService.findOne(id)
         .then((user)=>console.log(user))
-        .catch((error)=>console.log(error))
+        .catch((error)=>console.log({statusCode: error.statusCode, message: error.message}))
     }
 
     update = () => {
       const id = "2";
-      const data:UpdateUser = {
+      const data:UpdateUserDto = {
         name: "jose gregorio",
       };
 
       this.usersService.update(id, data)
         .then((user)=>console.log(user))
-        .catch((error)=>console.log(error))
+        .catch((error)=>console.log({statusCode: error.statusCode, message: error.message}))
     }
 
     remove = () => {
@@ -53,6 +53,6 @@ export class UsersController {
 
       this.usersService.remove(id)
         .then((user)=>console.log(user))
-        .catch((error)=>console.log(error));
+        .catch((error)=>console.log({statusCode: error.statusCode, message: error.message}));
     }
 }

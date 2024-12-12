@@ -1,6 +1,8 @@
 import { ManagerError } from '../common/errors/manager.error';
 import { CreateProductDto } from './dtos/create-product.dto';
+import { UpdateProductDto } from './dtos/update-product.dto';
 import { ProductEntity } from './entities/product.entity';
+import { ResponseAllProducts } from './interfaces/response-all-products.interface';
 export class ProductsService {
     private products: ProductEntity[] = [
         { id: "1", name: "product1", price: 20, stock: 5, createdAt: new Date(), updatedAt: new Date()},
@@ -20,9 +22,12 @@ export class ProductsService {
         }
     }
 
-    async findAll(): Promise<ProductEntity[]>{
+    async findAll(): Promise<ResponseAllProducts>{
         try {
-            return this.products;
+            return {
+                total: this.products.length,
+                data: this.products,
+            };
         } catch (error) {
             throw error;
         }
@@ -39,15 +44,26 @@ export class ProductsService {
         }
     }
 
-    async update( id:string, updateProduct: Partial<CreateProductDto> ): Promise<ProductEntity>{
+    async update( id:string, updateProductDto: UpdateProductDto ): Promise<ProductEntity>{
         try {
             const product = await this.findOne(id);
             
             const productIndex = this.products.findIndex((product)=>product.id===id);
 
+            /* 
+                * Esta actualización la estoy haciendo con ternarios
+                * Si viene la propiedad updateProductDto.name la establezco, sino dejo la de product.name
+                * Los ternarios son condicionales en linea
+                * PD: En la aplicación final no se hara asi, ya que la base de datos omite las propiedades undefined
+                * 
+                * * Más info sobre ternarios: https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Operators/Conditional_operator
+            */
             this.products[productIndex] = {
                 ...product,
-                ...updateProduct,
+                name: (updateProductDto.name)? updateProductDto.name: product.name,
+                price: (updateProductDto.price)? updateProductDto.price: product.price,
+                stock: (updateProductDto.stock)? updateProductDto.stock: product.stock,
+                photo: (updateProductDto.photo)? updateProductDto.photo: product.photo,
                 updatedAt: new Date(),
             }
 
