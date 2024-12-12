@@ -4,7 +4,7 @@
 
 ```bash
     # Clonar proyecto
-    git clone ruta
+    git clone https://github.com/ing-reyes/clase-07-12-2024.git
 
     # Instalar modulos de node
     npm i
