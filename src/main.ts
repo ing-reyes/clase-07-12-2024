@@ -5,5 +5,5 @@ import { CategoriesService } from "./categories/categories.service";
     const categoriesService = new CategoriesService()
     const categoriesController = new CategoriesController(categoriesService);
 
-    console.log( categoriesController.remove() );
+    console.log( categoriesController.findAll() );
 })()

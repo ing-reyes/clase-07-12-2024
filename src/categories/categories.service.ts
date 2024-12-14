@@ -1,8 +1,10 @@
+import { PaginationDto } from '../common/dtos/pagination/pagination.dto';
+import { HttpStatus } from '../common/enums/http-status.enum';
 import { ManagerError } from '../common/errors/manager.error';
+import { ResponseAllApi, ResponseOneApi } from '../common/interfaces/response-api.interface';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
 import { CategoryEntity } from './entities/category.entity';
-import { ResponseAllCategories } from './interfaces/response-all-categories.interface';
 
 export class CategoriesService {
     private categories: CategoryEntity[] = [
@@ -23,33 +25,57 @@ export class CategoriesService {
         }
     }
 
-    async findAll(): Promise<ResponseAllCategories>{
+    async findAll( paginationDto: PaginationDto ): Promise<ResponseAllApi<CategoryEntity>>{
+        const { limit = 10, page = 1 } = paginationDto;
+        const skip = ( page - 1 ) * limit;
+        
+        const total = this.categories.length;
+        const lastPage = Math.ceil( total / limit );
         try {
             return {
-                total: this.categories.length,
-                data: this.categories,
+                status: {
+                    statusMsg: "OK",
+                    statusCode: HttpStatus.OK,
+                    error: null,
+                },
+                meta: {
+                    total,
+                    page,
+                    limit,
+                    lastPage,
+
+                },
+                data: this.categories.slice(skip, limit),
             };
         } catch (error) {
             throw error;
         }
     }
 
-    async findOne(id:string): Promise<CategoryEntity>{
+    async findOne(id:string): Promise<ResponseOneApi<CategoryEntity>>{
         try {
             const category = this.categories.find((category)=>category.id===id);
             if(!category ) throw ManagerError.notFound("Category not found");
             
-            return category;
+            return {
+                status: {
+                    statusMsg: "OK",
+                    statusCode: HttpStatus.OK,
+                    error: null,
+                },
+                data: category,
+            };
         } catch (error) {
             throw error;
         }
     }
 
-    async update( id:string, updateCategory: UpdateCategoryDto ): Promise<CategoryEntity>{
+    async update( id:string, updateCategory: UpdateCategoryDto ): Promise<ResponseOneApi<CategoryEntity>>{
         try {
             const category = await this.findOne(id);
             
             const categoryIndex = this.categories.findIndex((category)=>category.id===id);
+            if( categoryIndex == -1 ) ManagerError.notFound("Category not found!");
             
             /* 
                 * Esta actualización la estoy haciendo con ternarios
@@ -60,23 +86,38 @@ export class CategoriesService {
                 * * Más info sobre ternarios: https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Operators/Conditional_operator
             */
             this.categories[categoryIndex] = {
-                ...category,
-                name: (updateCategory.name)? updateCategory.name: category.name,
-                description: (updateCategory.description)? updateCategory.description: category.description,
+                ...category.data,
+                name: (updateCategory.name)? updateCategory.name: category.data.name,
+                description: (updateCategory.description)? updateCategory.description: category.data.description,
                 updatedAt: new Date(),
             }
 
-            return this.categories[categoryIndex];
+            return {
+                status: {
+                    statusMsg: "OK",
+                    statusCode: HttpStatus.OK,
+                    error: null,
+                },
+                data: this.categories[categoryIndex],
+            };
         } catch (error) {
             throw error;
         }
     }
 
-    async remove( id:string ): Promise<CategoryEntity>{
+    async remove( id:string ): Promise<ResponseOneApi<CategoryEntity>>{
         try {
             const category = await this.findOne(id);
             this.categories = this.categories.filter((category)=>category.id!==id)
-            return category
+            
+            return {
+                status: {
+                    statusMsg: "OK",
+                    statusCode: HttpStatus.OK,
+                    error: null,
+                },
+                data: category.data
+            }
         } catch (error) {
             throw error;
         }

@@ -1,3 +1,4 @@
+import { PaginationDto } from "../common/dtos/pagination/pagination.dto";
 import { ManagerError } from "../common/errors/manager.error"
 import { CategoriesService } from "./categories.service";
 import { CreateCategoryDto } from './dtos/create-category.dto';
@@ -20,11 +21,13 @@ export class CategoriesController {
 
         this.categoriesService.create( createCategoryDto! )
           .then((category)=>console.log(category))
-          .catch((error)=>console.error({statusCode: error.statusCode, message: error.message}))
+          .catch((error)=>console.error({statusCode: error.statusCode, message: error.message, type: error.type}))
     }
 
     findAll = () => {
-      this.categoriesService.findAll()
+      const [error, paginationDto] = PaginationDto.create({page:1, limit:3})
+      if(error) throw error;
+      this.categoriesService.findAll(paginationDto!)
         .then((categories)=>console.log(categories))
         .catch((error)=>console.error({statusCode: error.statusCode, message: error.message}))
     }
@@ -33,7 +36,7 @@ export class CategoriesController {
 
       this.categoriesService.findOne(id)
         .then((category)=>console.log(category))
-        .catch((error)=>console.error( {statusCode: error.statusCode, message: error.message} ))
+        .catch((error)=>console.error( {statusCode: error.statusCode, message: error.message, type: error.type} ))
     }
 
     update = () => {
@@ -47,7 +50,7 @@ export class CategoriesController {
 
       this.categoriesService.update( id, updateCategoryDto! )
         .then((category)=>console.log(category))
-        .catch((error)=>console.error({statusCode: error.statusCode, message: error.message}));
+        .catch((error)=>console.error({statusCode: error.statusCode, message: error.message, type: error.type}));
     }
 
     remove = () => {
@@ -55,6 +58,6 @@ export class CategoriesController {
 
       this.categoriesService.remove(id)
         .then((category)=>console.log(category))
-        .catch((error)=>console.error({statusCode: error.statusCode, message: error.message}));
+        .catch((error)=>console.error({statusCode: error.statusCode, message: error.message, type: error.type}));
     }
 }
